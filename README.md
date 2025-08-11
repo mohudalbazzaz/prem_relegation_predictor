@@ -9,8 +9,9 @@ pandas, numpy for data manipulation
 
 scikit-learn for machine learning
 
-matplotlib for visualization
+matplotlib for visualisation
 
-BeautifulSoup, requests for web scraping (if applicable)
+BeautifulSoup, requests for web scraping
 
 Jupyter notebooks for experimentation and development
+
