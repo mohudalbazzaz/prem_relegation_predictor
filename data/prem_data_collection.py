@@ -48,30 +48,39 @@ def get_transfermarkt_table(url, headers):
 prem_base_url = "https://www.transfermarkt.com/premier-league/startseite/wettbewerb/GB1/plus/?saison_id="
 champ_base_url = "https://www.transfermarkt.com/premier-league/startseite/wettbewerb/GB1/plus/?saison_id="
 
-try:
-    prem_season_input = input("Please enter the starting season year: ")
-    prem_season = int(prem_season_input)
+def run_data_collection():
+    try:
+        prem_season_input = input("Please enter the starting season year: ")
+        prem_season = int(prem_season_input)
 
-    if 2014 <= prem_season <= datetime.now().year:
-        prem_url = prem_base_url + str(prem_season)
-    else:
-        raise ValueError("Premier League season must be a whole number from 2014 onwards.")
+        if 2014 <= prem_season <= datetime.now().year:
+            prem_url = prem_base_url + str(prem_season)
+        else:
+            raise ValueError("Premier League season must be a whole number from 2014 onwards.")
 
-    champ_season_input = input("Please enter the starting season year (same as above): ")
-    champ_season = int(champ_season_input)
+        champ_season_input = input("Please enter the starting season year (same as above): ")
+        champ_season = int(champ_season_input)
 
-    if 2014 <= champ_season <= datetime.now().year and champ_season == prem_season:
-        champ_url = champ_base_url + str(champ_season)
-    else:
-        raise ValueError("Championship season must be the same as Premier League and valid.")
+        if 2014 <= champ_season <= datetime.now().year and champ_season == prem_season:
+            champ_url = champ_base_url + str(champ_season)
+        else:
+            raise ValueError("Championship season must be the same as Premier League and valid.")
 
-    prem_mkt_val_df = get_transfermarkt_table(prem_url, headers)
-    champ_mkt_val_df = get_transfermarkt_table(champ_url, headers)
+        prem_mkt_val_df = get_transfermarkt_table(prem_url, headers)
+        champ_mkt_val_df = get_transfermarkt_table(champ_url, headers)
 
-except ValueError as ve:
-    print(f"Input error: {ve}")
-except Exception as e:
-    print(f"An error occurred: {e}")
+        return prem_mkt_val_df, champ_mkt_val_df, prem_season
+
+    except ValueError as ve:
+        print(f"Input error: {ve}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# run run_data_collection only if file is executed directly - not when imported
+if __name__ == "__main__":
+    run_data_collection()
+
+prem_mkt_val_df, champ_mkt_val_df, prem_season = run_data_collection()
 
 union_df = pd.concat([prem_mkt_val_df, champ_mkt_val_df]).drop_duplicates().reset_index(drop=True)
 
