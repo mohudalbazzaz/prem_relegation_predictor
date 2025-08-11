@@ -161,7 +161,8 @@ df = df.drop(columns=['id', 'h_a', 'xG', 'xGA', 'npxG',
     ])
 
 df = df.rename(columns={'cummean_npxGD': 'non-penalty xGD', 'cummean_ppda.att': 'pressing intensity',
-                    'cummean_ppda_allowed.att': 'defending pressing intensity', 'ø age': 'avg_age'
+                    'cummean_ppda_allowed.att': 'defending pressing intensity', 'ø age': 'avg_age',
+                    'Squad': 'squad_size'
                     })
 
 final_game = df[df["matchday"] == df["matchday"].max()]
