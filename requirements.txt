@@ -1,0 +1,8 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+beautifulsoup4      
+requests            
+lxml                
+python-dotenv   
