@@ -147,7 +147,7 @@ if st.button("Run Prediction Pipeline"):
         st.success("Prediction complete!")
 
         st.subheader("Relegation Probability Over Matchdays")
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(8, 5))
         for team in relegation_probs["name"].unique():
             team_data = relegation_probs[relegation_probs["name"] == team]
             ax.plot(team_data["matchday"], team_data["relegation_proba"], label=team)
@@ -158,7 +158,7 @@ if st.button("Run Prediction Pipeline"):
         ax.grid(True)
         st.pyplot(fig)
 
-        st.subheader("Latest Relegation Probabilities")
+        st.subheader("Relegation Probabilities after 5 games")
         latest_probs = relegation_probs[relegation_probs["matchday"] == 5]
         latest_probs = latest_probs.drop_duplicates(subset="name", keep="first")
         st.dataframe(latest_probs.sort_values("relegation_proba", ascending=False).reset_index(drop=True))
