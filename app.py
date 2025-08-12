@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-import streamlit
-=======
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
@@ -168,4 +165,3 @@ if st.button("Run Prediction Pipeline"):
 
     else:
         st.warning("Not enough data to make predictions.")
->>>>>>> 681714be74fa493a4d3290bfcf9e8714037dbc68
