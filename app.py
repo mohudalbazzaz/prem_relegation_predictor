@@ -14,7 +14,7 @@ st.set_page_config(layout="wide")
 st.title("Premier League Relegation Predictor")
 
 # --- User Input ---
-season = st.number_input("Enter the starting season year e.g for 2022/2023 enter 2022 (2014 onwards)", min_value=2014, max_value=datetime.now().year, step=1)
+season = st.number_input("Enter the season e.g for 2022/2023 enter 2022 (2014 onwards)", min_value=2014, max_value=datetime.now().year, step=1)
 
 if st.button("Run Prediction Pipeline"):
 
