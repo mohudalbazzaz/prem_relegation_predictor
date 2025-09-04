@@ -14,31 +14,42 @@ st.set_page_config(layout="wide")
 st.title("Premier League Relegation Predictor")
 
 # --- User Input ---
-season = st.number_input("Enter the season e.g for 2022/2023 enter 2022 (2014 onwards)", min_value=2014, max_value=datetime.now().year, step=1)
+season = st.number_input("Enter the season (e.g., for 2022/2023 enter 2022)", min_value=2014, max_value=datetime.now().year, step=1)
 
-if st.button("Run Prediction Pipeline"):
-
-    headers = {
+# --- Headers for scraping ---
+headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
                   "Chrome/115.0.0.0 Safari/537.36",
     "Accept-Language": "en-US,en;q=0.9"
 }
 
-    @st.cache_data(show_spinner="Fetching Transfermarkt data...")
-    def get_transfermarkt_table(url, headers):
-        r = requests.get(url, headers=headers)
-        soup = BeautifulSoup(r.text, "html.parser")
-        league_table = soup.find("table", class_="items")
-        if league_table is None:
-            return pd.DataFrame()
-        titles = [th.text.strip() for th in league_table.find_all("th")]
-        df = pd.DataFrame(columns=titles)
-        for row in league_table.find_all("tr")[1:]:
-            row_data = [td.text.strip() for td in row.find_all("td")]
-            if len(row_data) == len(titles):
-                df.loc[len(df)] = row_data
-        return df.drop(0, errors='ignore')
+# --- Cached function to get Transfermarkt table ---
+@st.cache_data(show_spinner="Fetching Transfermarkt data...")
+def get_transfermarkt_table(url, headers):
+    r = requests.get(url, headers=headers)
+    soup = BeautifulSoup(r.text, "html.parser")
+    
+    league_table = soup.find("table", class_="items")
+    if league_table is None:
+        # Debug output to understand the page
+        st.error("⚠️ Could not find table with class 'items'. Transfermarkt may be blocking the request.")
+        st.text_area("Raw HTML response", r.text[:2000])
+        return pd.DataFrame()
+    
+    titles = [th.text.strip() for th in league_table.find_all("th")]
+    df = pd.DataFrame(columns=titles)
+    
+    for row in league_table.find_all("tr")[1:]:
+        row_data = [td.text.strip() for td in row.find_all("td")]
+        if len(row_data) == len(titles):
+            df.loc[len(df)] = row_data
+
+    return df.drop(0, errors='ignore')
+
+
+# --- MAIN PIPELINE ---
+if st.button("Run Prediction Pipeline"):
 
     # --- Scrape Transfermarkt ---
     prem_url = f"https://www.transfermarkt.com/premier-league/startseite/wettbewerb/GB1/plus/?saison_id={season}"
@@ -48,7 +59,7 @@ if st.button("Run Prediction Pipeline"):
     champ_df = get_transfermarkt_table(champ_url, headers)
 
     if prem_df.empty or champ_df.empty:
-        st.error("Failed to retrieve Premier League or Championship data.")
+        st.error("❌ Failed to retrieve Premier League or Championship data.")
         st.stop()
 
     union_df = pd.concat([prem_df, champ_df]).drop_duplicates().reset_index(drop=True)
@@ -61,7 +72,7 @@ if st.button("Run Prediction Pipeline"):
 
     team_data = re.search(r"var teamsData\s*=\s*JSON.parse\('(.*)'\)", ugly_soup)
     if not team_data:
-        st.error("Failed to retrieve Understat data.")
+        st.error("❌ Failed to retrieve Understat data.")
         st.stop()
 
     json_str = team_data.group(1)
@@ -146,24 +157,10 @@ if st.button("Run Prediction Pipeline"):
 
     if prob_list:
         relegation_probs = pd.concat(prob_list)
-        st.success("Prediction complete!")
+        st.success("✅ Prediction complete!")
 
-        st.subheader("Relegation Probability Over Matchdays")
+        st.subheader("📉 Relegation Probability Over Matchdays")
         fig, ax = plt.subplots(figsize=(8, 5))
         for team in relegation_probs["name"].unique():
             team_data = relegation_probs[relegation_probs["name"] == team]
-            ax.plot(team_data["matchday"], team_data["relegation_proba"], label=team)
-        ax.set_xlabel("Matchday")
-        ax.set_ylabel("Relegation Probability")
-        ax.set_title(f"Relegation Probability per Team Over the {season} Season")
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        ax.grid(True)
-        st.pyplot(fig)
-
-        st.subheader("Relegation Probabilities after 5 games")
-        latest_probs = relegation_probs[relegation_probs["matchday"] == 5]
-        latest_probs = latest_probs.drop_duplicates(subset="name", keep="first")
-        st.dataframe(latest_probs.sort_values("relegation_proba", ascending=False).reset_index(drop=True))
-
-    else:
-        st.warning("Not enough data to make predictions.")
+           
