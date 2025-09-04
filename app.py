@@ -19,9 +19,11 @@ season = st.number_input("Enter the season e.g for 2022/2023 enter 2022 (2014 on
 if st.button("Run Prediction Pipeline"):
 
     headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept-Language": "en-US,en;q=0.9"
-    }
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/115.0.0.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9"
+}
 
     @st.cache_data(show_spinner="Fetching Transfermarkt data...")
     def get_transfermarkt_table(url, headers):
